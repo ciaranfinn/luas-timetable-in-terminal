@@ -1,0 +1,63 @@
+#!/usr/bin/osascript
+on run argv
+	launch application "JSON Helper"
+	if item 1 of argv = "home" then
+		set luasStop to "SAN"
+		set stopName to "Sandyford"
+		set luasTimes to getLuasTimes(luasStop)
+		displayNotification(luasTimes, stopName)
+	else if item 1 of argv = "work" then
+		set luasStop to "STS"
+		set stopName to "Saint Stephen's Green"
+		set luasTimes to getLuasTimes(luasStop)
+		displayNotification(luasTimes, stopName)
+	else
+		return "😱  Command Error:  Please specify 'home' or 'work' as a paramater when running the program"
+	end if
+end run
+
+-- Method to create a notification
+on displayNotification(luasInfo, stopName)
+	return "🚆  Luas Timetable @ " & stopName & " :" & luasInfo & " "
+
+
+end displayNotification
+
+on getLuasTimes(luasStop)
+	tell application "JSON Helper"
+
+		--Monitor the luas feed:
+		try
+			set luasFeed to fetch JSON from "http://luas.neilcremins.com/?action=times&station=" & luasStop with cleaning
+			set amount to count of trams of luasFeed
+
+			set output to ""
+
+			set i to 1
+			repeat amount times
+				set dueTime to dueMinutes of item i of trams of luasFeed
+				set direction to direction of item i of trams of luasFeed
+				set destination to destination of item i of trams of luasFeed
+				if dueTime = "1" then
+					set dueTime to dueTime & " min"
+				else if dueTime = "Due" then
+					set dueTime to dueTime
+				else
+					set dueTime to dueTime & " mins"
+				end if
+				set output to output & "
+📍 " & destination & " | 🗺 " & direction & " | ⏱ " & dueTime
+				set i to i + 1
+			end repeat
+			return output
+		on error
+			try
+				set luasFeed to fetch JSON from "http://luas.neilcremins.com/?action=times&station=" & luasStop with cleaning
+				set statusMessage to message of luasFeed
+				return ("❗ " & statusMessage)
+			end try
+			return (" No Data Available ATM 😢")
+		end try
+
+	end tell
+end getLuasTimes
