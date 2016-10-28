@@ -1,4 +1,5 @@
 ### 🚆 Luas Timetable In Terminal
+This code has ceased to work since the API went down.
 
 ####Setup 🔌:
 * Download [`JSON Helper`](https://itunes.apple.com/ie/app/json-helper-for-applescript/id453114608?mt=12)
